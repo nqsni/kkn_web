@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class RubrikPenilaian extends Model
+{
+    use HasFactory;
+
+    protected $table = 'rubrik_penilaian';
+
+    protected $fillable = ['komponen', 'bobot'];
+}
