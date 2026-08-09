@@ -24,23 +24,28 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // 1. Verifikasi kredensial email/password
         $request->authenticate();
 
+        // 2. Amankan sesi
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        // 3. Ambil data user yang baru saja berhasil login
+        $user = auth()->user();
 
+        // 4. Logika Pengalihan berdasarkan Role Spatie
         if ($user->hasRole('mahasiswa')) {
-            return redirect()->intended('/mahasiswa/dashboard');
+            return redirect()->route('mahasiswa.dashboard');
         } elseif ($user->hasRole('dosen_pembimbing')) {
-            return redirect()->intended('/dosen/dashboard');
+            return redirect()->route('dosen.dashboard');
         } elseif ($user->hasRole('panitia_kkn')) {
-            return redirect()->intended('/panitia/dashboard');
+            return redirect()->route('panitia.dashboard'); // Pastikan route ini sudah dibuat nanti
         } elseif ($user->hasRole('super_admin')) {
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->route('admin.dashboard');   // Pastikan route ini sudah dibuat nanti
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // 5. Fallback jika user tidak punya role sama sekali (keamanan ekstra)
+        return redirect()->intended('/');
     }
     /**
      * Destroy an authenticated session.

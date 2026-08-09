@@ -1,11 +1,30 @@
 <x-dashboard-layout title="Dashboard Dosen Pembimbing">
-    <x-slot:sidebar>
-        <x-nav-item href="{{ route('dosen.dashboard') }}" :active="true">Dashboard</x-nav-item>
-        <x-nav-item href="#">Validasi Proposal</x-nav-item>
-        <x-nav-item href="#">Penilaian Logbook</x-nav-item>
-        <x-nav-item href="#">Penilaian Laporan Akhir</x-nav-item>
-        <x-nav-item href="#">Penilaian Akhir</x-nav-item>
-    </x-slot:sidebar>
+<x-slot:sidebar>
+    <!-- Menu Dashboard -->
+    <x-nav-item href="{{ route('dosen.dashboard') }}" :active="request()->routeIs('dosen.dashboard')">
+        Dashboard
+    </x-nav-item>
+
+    <!-- Menu Pengajuan Proyek -->
+    <x-nav-item href="{{ route('dosen.pengajuan.proyek') }}" :active="request()->routeIs('dosen.pengajuan.proyek')">
+        Pengajuan Proyek
+    </x-nav-item>
+
+    <!-- Menu Validasi Proposal -->
+    <x-nav-item href="{{ route('dosen.validasi.proposal') }}" :active="request()->routeIs('dosen.validasi.proposal')">
+        Validasi Proposal
+    </x-nav-item>
+
+    <!-- Menu Penilaian Mahasiswa -->
+    <x-nav-item href="{{ route('dosen.penilaian') }}" :active="request()->routeIs('dosen.penilaian')">
+        Penilaian Mahasiswa
+    </x-nav-item>
+
+    <!-- Menu Profile -->
+    <x-nav-item href="{{ route('dosen.profile') }}" :active="request()->routeIs('dosen.profile')">
+        Profile Dosen
+    </x-nav-item>
+</x-slot:sidebar>
 
     <div class="bg-white rounded-xl border border-border p-6">
         <p class="font-display text-2xl font-semibold">Halo, {{ auth()->user()->name }} 👋</p>
