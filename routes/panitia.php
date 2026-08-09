@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', function () {
-    return 'Halo Panitia!';
+    return view('panitia.dashboard');
 })->name('panitia.dashboard');

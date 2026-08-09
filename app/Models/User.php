@@ -57,4 +57,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProyekKkn::class, 'dosen_id');
     }
+
+    public function timKkn()
+    {
+        return $this->hasMany(TimKkn::class, 'mahasiswa_id');
+    }
+
+    // Proyek aktif yang mahasiswa ini ikuti (baik sbg pengaju maupun anggota)
+    public function getProyekAktifAttribute()
+    {
+        return $this->timKkn()
+            ->whereHas('proyek', function ($q) {
+                $q->whereIn('status', ['diajukan', 'lolos', 'penuh']);
+            })
+            ->with('proyek')
+            ->first()?->proyek;
+    }
 }

@@ -12,7 +12,8 @@ class ProyekKkn extends Model
     protected $table = 'proyek_kkn';
 
     protected $fillable = [
-        'mahasiswa_id', 'dosen_id', 'judul', 'deskripsi', 'lokasi', 'status', 'catatan_validasi',
+        'mahasiswa_id', 'dosen_id', 'judul', 'deskripsi', 'lokasi',
+        'kuota_tim', 'status', 'catatan_validasi',
     ];
 
     public function mahasiswa()
@@ -63,5 +64,23 @@ class ProyekKkn extends Model
     public function nilaiAkhir()
     {
         return $this->hasOne(NilaiAkhir::class);
+    }
+
+    // Helper: jumlah anggota tim saat ini
+    public function getJumlahAnggotaAttribute(): int
+    {
+        return $this->timKkn()->count();
+    }
+
+    // Helper: sisa slot kuota
+    public function getSisaSlotAttribute(): int
+    {
+        return max(0, $this->kuota_tim - $this->jumlah_anggota);
+    }
+
+    // Helper: apakah proyek ini masih bisa direbut di War
+    public function getBisaDirebutAttribute(): bool
+    {
+        return $this->status === 'lolos' && $this->sisa_slot > 0;
     }
 }

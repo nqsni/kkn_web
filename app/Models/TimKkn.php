@@ -11,7 +11,7 @@ class TimKkn extends Model
 
     protected $table = 'tim_kkn';
 
-    protected $fillable = ['proyek_kkn_id', 'mahasiswa_id'];
+    protected $fillable = ['proyek_kkn_id', 'mahasiswa_id', 'peran'];
 
     public function proyek()
     {
