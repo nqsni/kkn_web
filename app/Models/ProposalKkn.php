@@ -11,7 +11,7 @@ class ProposalKkn extends Model
 
     protected $table = 'proposal_kkn';
 
-    protected $fillable = ['proyek_kkn_id', 'file_proposal', 'status', 'catatan_dosen'];
+    protected $fillable = ['proyek_kkn_id', 'file_proposal', 'status', 'nilai', 'catatan_dosen'];
 
     public function proyek()
     {

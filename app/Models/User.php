@@ -73,4 +73,11 @@ class User extends Authenticatable
             ->with('proyek')
             ->first()?->proyek;
     }
+
+    public function periodeList()
+    {
+        return $this->belongsToMany(PeriodeKkn::class, 'periode_user', 'user_id', 'periode_id')
+            ->withPivot('role_saat_itu')
+            ->withTimestamps();
+    }
 }
