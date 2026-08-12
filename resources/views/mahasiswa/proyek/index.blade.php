@@ -42,12 +42,13 @@
                 @php
                     $proyek = $tim->proyek;
                     $statusBadge = match($proyek->status) {
-                        'diajukan' => ['label' => 'Menunggu Validasi', 'class' => 'bg-accent-yellow/20 text-role-mahasiswa'],
-                        'lolos' => ['label' => 'Lolos', 'class' => 'bg-accent-kiwi/15 text-accent-kiwi'],
-                        'tidak_lolos' => ['label' => 'Tidak Lolos', 'class' => 'bg-role-panitia-soft text-role-panitia'],
-                        'penuh' => ['label' => 'Tim Lengkap', 'class' => 'bg-role-admin-soft text-role-admin'],
-                        default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
-                    };
+                    'diajukan' => ['label' => 'Menunggu Validasi', 'class' => 'bg-accent-yellow/20 text-role-mahasiswa'],
+                    'menunggu_rilis' => ['label' => 'Menunggu Rilis Admin', 'class' => 'bg-role-admin-soft text-role-admin'],
+                    'tersedia' => ['label' => 'Tersedia (War)', 'class' => 'bg-accent-kiwi/15 text-accent-kiwi'],
+                    'tidak_lolos' => ['label' => 'Tidak Lolos', 'class' => 'bg-role-panitia-soft text-role-panitia'],
+                    'penuh' => ['label' => 'Tim Lengkap', 'class' => 'bg-role-dosen-soft text-role-dosen'],
+                    default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
+                };
                 @endphp
                 <a href="{{ route('mahasiswa.proyek.show', $proyek) }}"
                    class="block bg-white rounded-xl border border-border p-5 hover:border-ink/20 transition">

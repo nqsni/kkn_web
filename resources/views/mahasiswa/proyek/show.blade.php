@@ -11,12 +11,13 @@
 
     @php
         $statusBadge = match($proyek->status) {
-            'diajukan' => ['label' => 'Menunggu Validasi', 'class' => 'bg-role-mahasiswa-soft text-role-mahasiswa'],
-            'lolos' => ['label' => 'Lolos', 'class' => 'bg-role-dosen-soft text-role-dosen'],
-            'tidak_lolos' => ['label' => 'Tidak Lolos', 'class' => 'bg-role-panitia-soft text-role-panitia'],
-            'penuh' => ['label' => 'Tim Lengkap', 'class' => 'bg-role-admin-soft text-role-admin'],
-            default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
-        };
+        'diajukan' => ['label' => 'Menunggu Validasi', 'class' => 'bg-accent-yellow/20 text-role-mahasiswa'],
+        'menunggu_rilis' => ['label' => 'Menunggu Rilis Admin', 'class' => 'bg-role-admin-soft text-role-admin'],
+        'tersedia' => ['label' => 'Tersedia (War)', 'class' => 'bg-accent-kiwi/15 text-accent-kiwi'],
+        'tidak_lolos' => ['label' => 'Tidak Lolos', 'class' => 'bg-role-panitia-soft text-role-panitia'],
+        'penuh' => ['label' => 'Tim Lengkap', 'class' => 'bg-role-dosen-soft text-role-dosen'],
+        default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
+    };
     @endphp
 
     <a href="{{ route('mahasiswa.proyek.index') }}" class="text-sm text-ink/50 hover:text-ink mb-4 inline-block">← Kembali</a>

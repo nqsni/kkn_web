@@ -1,6 +1,7 @@
 <x-dashboard-layout title="Penilaian Logbook">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
+        <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}" :active="true">Penilaian Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
@@ -25,7 +26,7 @@
             @foreach ($proyekList as $proyek)
                 <div class="bg-white rounded-2xl border border-border p-5">
                     <p class="font-display text-base font-semibold mb-1">{{ $proyek->judul }}</p>
-                    <p class="text-sm text-ink/60 mb-4">{{ $proyek->mahasiswa->name }}</p>
+                    <p class="text-sm text-ink/60 mb-4">{{ $proyek->mahasiswa->name ?? 'Tim Sendiri (Diajukan Dosen)'}}</p>
 
                     <div class="space-y-2">
                         @foreach ($proyek->logbook as $log)

@@ -10,20 +10,15 @@ use App\Models\ProyekKkn;
 
 class PenilaianService
 {
-    // Bobot komponen utama
     const BOBOT_LRK = 0.15;
     const BOBOT_KINERJA = 0.70;
     const BOBOT_LPK = 0.15;
 
-    // Bobot sub-kriteria kinerja (total = 0.70, dinormalisasi ke skala 100)
     const BOBOT_PELAKSANAAN = 0.30;
     const BOBOT_DISIPLIN = 0.15;
     const BOBOT_KERJASAMA = 0.15;
     const BOBOT_PENGHAYATAN = 0.10;
 
-    /**
-     * Hitung nilai kinerja gabungan (skala 0-100) dari 4 kriteria.
-     */
     public function hitungNilaiKinerja(float $pelaksanaan, float $disiplin, float $kerjasama, float $penghayatan): float
     {
         $total = ($pelaksanaan * self::BOBOT_PELAKSANAAN)
@@ -31,13 +26,9 @@ class PenilaianService
             + ($kerjasama * self::BOBOT_KERJASAMA)
             + ($penghayatan * self::BOBOT_PENGHAYATAN);
 
-        // total bobot sub-kriteria = 0.70, dinormalisasi jadi skala 0-100
         return round($total / self::BOBOT_KINERJA, 2);
     }
 
-    /**
-     * Hitung nilai akhir dari LRK, Kinerja, LPK (masing-masing skala 0-100).
-     */
     public function hitungNilaiAkhir(float $nilaiLrk, float $nilaiKinerja, float $nilaiLpk): float
     {
         $nilaiAkhir = ($nilaiLrk * self::BOBOT_LRK)
@@ -47,9 +38,6 @@ class PenilaianService
         return round($nilaiAkhir, 2);
     }
 
-    /**
-     * Konversi Nilai Angka (NA) ke Nilai Mutu (NM).
-     */
     public function konversiNilaiMutu(float $na): string
     {
         return match (true) {
@@ -64,17 +52,30 @@ class PenilaianService
     }
 
     /**
-     * Proses lengkap: simpan LRK, Kinerja, LPK, lalu hitung & simpan Nilai Akhir.
+     * Proses penilaian akhir. LRK diambil dari proposal.nilai,
+     * LPK diambil dari laporan_akhir.nilai. Dosen hanya input Kinerja.
      */
     public function prosesPenilaianAkhir(ProyekKkn $proyek, array $data): NilaiAkhir
     {
-        // Simpan/update LRK
+        $proyek->loadMissing('proposal', 'laporanAkhir');
+
+        if (!$proyek->proposal || $proyek->proposal->nilai === null) {
+            throw new \Exception('Nilai LRK belum tersedia. Pastikan proposal sudah di-ACC dengan nilai.');
+        }
+
+        if (!$proyek->laporanAkhir || $proyek->laporanAkhir->nilai === null) {
+            throw new \Exception('Nilai LPK belum tersedia. Pastikan laporan akhir sudah dinilai.');
+        }
+
+        $nilaiLrk = $proyek->proposal->nilai;
+        $nilaiLpk = $proyek->laporanAkhir->nilai;
+
+        // Simpan salinan ke tabel penilaian_lrk & penilaian_lpk (untuk konsistensi struktur lama)
         PenilaianLrk::updateOrCreate(
             ['proyek_kkn_id' => $proyek->id],
-            ['nilai' => $data['nilai_lrk']]
+            ['nilai' => $nilaiLrk]
         );
 
-        // Simpan/update Kinerja
         PenilaianKinerja::updateOrCreate(
             ['proyek_kkn_id' => $proyek->id],
             [
@@ -85,13 +86,11 @@ class PenilaianService
             ]
         );
 
-        // Simpan/update LPK
         PenilaianLpk::updateOrCreate(
             ['proyek_kkn_id' => $proyek->id],
-            ['nilai' => $data['nilai_lpk']]
+            ['nilai' => $nilaiLpk]
         );
 
-        // Hitung nilai kinerja gabungan
         $nilaiKinerja = $this->hitungNilaiKinerja(
             $data['pelaksanaan'],
             $data['disiplin'],
@@ -99,19 +98,15 @@ class PenilaianService
             $data['penghayatan']
         );
 
-        // Hitung nilai akhir
-        $nilaiAkhir = $this->hitungNilaiAkhir($data['nilai_lrk'], $nilaiKinerja, $data['nilai_lpk']);
-
-        // Konversi ke mutu
+        $nilaiAkhir = $this->hitungNilaiAkhir($nilaiLrk, $nilaiKinerja, $nilaiLpk);
         $nilaiMutu = $this->konversiNilaiMutu($nilaiAkhir);
 
-        // Simpan/update Nilai Akhir
         return NilaiAkhir::updateOrCreate(
             ['proyek_kkn_id' => $proyek->id],
             [
-                'nilai_lrk' => $data['nilai_lrk'],
+                'nilai_lrk' => $nilaiLrk,
                 'nilai_kinerja' => $nilaiKinerja,
-                'nilai_lpk' => $data['nilai_lpk'],
+                'nilai_lpk' => $nilaiLpk,
                 'nilai_akhir' => $nilaiAkhir,
                 'nilai_mutu' => $nilaiMutu,
             ]

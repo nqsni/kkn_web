@@ -1,6 +1,7 @@
 <x-dashboard-layout title="Dashboard Dosen Pembimbing">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('dosen.dashboard') }}" :active="true">Dashboard</x-nav-item>
+        <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>

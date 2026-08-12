@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mahasiswa;
+namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProyekKkn;
@@ -11,56 +11,46 @@ use Illuminate\Support\Facades\DB;
 
 class ProyekController extends Controller
 {
+    // List proyek yang diajukan dosen ini sendiri
     public function index()
     {
-        $user = Auth::user();
+        $dosenId = Auth::id();
 
-        $timList = TimKkn::with('proyek.dosen')
-            ->where('mahasiswa_id', $user->id)
+        $proyekList = ProyekKkn::where('pengaju_type', 'dosen')
+            ->where('dosen_id', $dosenId)
+            ->with('timKkn.mahasiswa')
+            ->latest()
             ->get();
 
-        return view('mahasiswa.proyek.index', compact('timList'));
+        return view('dosen.proyek.index', compact('proyekList'));
     }
 
     public function create()
     {
         $user = Auth::user();
 
-        if ($user->proyek_aktif) {
-            return redirect()->route('mahasiswa.proyek.index')
-                ->with('error', 'Kamu masih memiliki proyek aktif. Tidak bisa mengajukan proyek baru.');
-        }
-
         $periode = $user->periodeList()->where('periode_kkn.status', 'aktif')->first();
 
         if (!$periode) {
-            return redirect()->route('mahasiswa.proyek.index')
+            return redirect()->route('dosen.proyek.index')
                 ->with('error', 'Kamu belum terdaftar di periode KKN aktif. Hubungi Super Admin.');
         }
 
-        // Mahasiswa lain di periode yang sama & belum punya proyek aktif
-        $mahasiswaTersedia = $periode->mahasiswaList()
-            ->where('users.id', '!=', $user->id)
-            ->get()
+        $mahasiswaTersedia = $periode->mahasiswaList()->get()
             ->reject(fn($m) => $m->proyek_aktif)
             ->values();
 
-        return view('mahasiswa.proyek.create', compact('periode', 'mahasiswaTersedia'));
+        return view('dosen.proyek.create', compact('periode', 'mahasiswaTersedia'));
     }
 
     public function store(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->proyek_aktif) {
-            return redirect()->route('mahasiswa.proyek.index')
-                ->with('error', 'Kamu masih memiliki proyek aktif.');
-        }
-
         $periode = $user->periodeList()->where('periode_kkn.status', 'aktif')->first();
 
         if (!$periode) {
-            return redirect()->route('mahasiswa.proyek.index')
+            return redirect()->route('dosen.proyek.index')
                 ->with('error', 'Kamu belum terdaftar di periode KKN aktif.');
         }
 
@@ -75,7 +65,7 @@ class ProyekController extends Controller
 
         $anggotaIds = $validated['anggota'] ?? [];
 
-        if (count($anggotaIds) + 1 > $validated['kuota_tim']) {
+        if (count($anggotaIds) > $validated['kuota_tim']) {
             return back()->withErrors(['anggota' => 'Jumlah anggota yang dipilih melebihi kuota tim.'])->withInput();
         }
 
@@ -90,19 +80,14 @@ class ProyekController extends Controller
         DB::transaction(function () use ($validated, $user, $periode, $mahasiswaValid) {
             $proyek = ProyekKkn::create([
                 'periode_id' => $periode->id,
-                'pengaju_type' => 'mahasiswa',
-                'mahasiswa_id' => $user->id,
+                'pengaju_type' => 'dosen',
+                'dosen_id' => $user->id,
+                'mahasiswa_id' => null,
                 'judul' => $validated['judul'],
                 'deskripsi' => $validated['deskripsi'],
                 'lokasi' => $validated['lokasi'],
                 'kuota_tim' => $validated['kuota_tim'],
                 'status' => 'diajukan',
-            ]);
-
-            TimKkn::create([
-                'proyek_kkn_id' => $proyek->id,
-                'mahasiswa_id' => $user->id,
-                'peran' => 'pengaju',
             ]);
 
             foreach ($mahasiswaValid as $m) {
@@ -114,21 +99,18 @@ class ProyekController extends Controller
             }
         });
 
-        return redirect()->route('mahasiswa.proyek.index')
+        return redirect()->route('dosen.proyek.index')
             ->with('success', 'Proyek KKN berhasil diajukan, menunggu validasi panitia.');
     }
 
     public function show(ProyekKkn $proyek)
     {
-        $user = Auth::user();
-
-        $isMember = $proyek->timKkn()->where('mahasiswa_id', $user->id)->exists();
-        if (!$isMember) {
+        if ($proyek->dosen_id !== Auth::id() || $proyek->pengaju_type !== 'dosen') {
             abort(403);
         }
 
-        $proyek->load('timKkn.mahasiswa', 'dosen');
+        $proyek->load('timKkn.mahasiswa');
 
-        return view('mahasiswa.proyek.show', compact('proyek'));
+        return view('dosen.proyek.show', compact('proyek'));
     }
 }

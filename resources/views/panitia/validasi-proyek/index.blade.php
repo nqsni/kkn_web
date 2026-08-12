@@ -33,7 +33,14 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
                             <p class="font-display text-base font-semibold truncate">{{ $proyek->judul }}</p>
-                            <p class="text-sm text-ink/60 mt-1">{{ $proyek->lokasi }} · Diajukan oleh {{ $proyek->mahasiswa->name }}</p>
+                            <p class="text-sm text-ink/60 mt-1">
+                                {{ $proyek->lokasi }} ·
+                                @if ($proyek->pengaju_type === 'dosen')
+                                    Diajukan oleh Dosen: {{ $proyek->dosen->name ?? '-' }}
+                                @else
+                                    Diajukan oleh Mahasiswa: {{ $proyek->mahasiswa->name ?? '-' }}
+                                @endif
+                            </p>
                             <p class="text-xs text-ink/40 mt-1">Kuota tim: {{ $proyek->kuota_tim }} orang</p>
                         </div>
                         <span class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-accent-yellow/20 text-role-mahasiswa">
@@ -56,7 +63,8 @@
             @foreach ($riwayat as $proyek)
                 @php
                     $badge = match($proyek->status) {
-                        'lolos', 'penuh' => ['label' => 'Lolos', 'class' => 'bg-accent-kiwi/15 text-accent-kiwi'],
+                        'menunggu_rilis' => ['label' => 'Menunggu Rilis Admin', 'class' => 'bg-role-admin-soft text-role-admin'],
+                        'tersedia', 'penuh' => ['label' => 'Lolos', 'class' => 'bg-accent-kiwi/15 text-accent-kiwi'],
                         'tidak_lolos' => ['label' => 'Tidak Lolos', 'class' => 'bg-role-panitia-soft text-role-panitia'],
                         default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
                     };
@@ -64,7 +72,9 @@
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-border px-5 py-3">
                     <div>
                         <p class="text-sm font-medium">{{ $proyek->judul }}</p>
-                        <p class="text-xs text-ink/40">{{ $proyek->mahasiswa->name }}</p>
+                        <p class="text-xs text-ink/40">
+                            {{ $proyek->pengaju_type === 'dosen' ? $proyek->dosen->name ?? '-' : $proyek->mahasiswa->name ?? '-' }}
+                        </p>
                     </div>
                     <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                 </div>

@@ -1,6 +1,7 @@
 <x-dashboard-layout title="Input Penilaian Akhir">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
+        <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
@@ -12,7 +13,7 @@
     <div class="max-w-2xl">
         <div class="bg-white rounded-2xl border border-border p-6 mb-5">
             <p class="font-display text-xl font-semibold mb-1">{{ $proyek->judul }}</p>
-            <p class="text-sm text-ink/60">{{ $proyek->mahasiswa->name }}</p>
+            <p class="text-sm text-ink/60">{{ $proyek->mahasiswa->name ?? '-' }}</p>
         </div>
 
         @if ($proyek->nilaiAkhir)
@@ -27,8 +28,31 @@
             </div>
         @endif
 
+        {{-- LRK & LPK: read-only, sumber otomatis --}}
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="bg-white rounded-2xl border border-border p-5">
+                <p class="text-xs text-ink/40">LRK <span class="text-ink/30">(dari nilai Proposal, 15%)</span></p>
+                <p class="font-display text-xl font-semibold mt-1">
+                    {{ $proyek->proposal && $proyek->proposal->nilai !== null ? number_format($proyek->proposal->nilai, 2) : '—' }}
+                </p>
+                @if (!$proyek->proposal || $proyek->proposal->nilai === null)
+                    <p class="text-xs text-role-panitia mt-1">Proposal belum dinilai</p>
+                @endif
+            </div>
+            <div class="bg-white rounded-2xl border border-border p-5">
+                <p class="text-xs text-ink/40">LPK <span class="text-ink/30">(dari nilai Laporan Akhir, 15%)</span></p>
+                <p class="font-display text-xl font-semibold mt-1">
+                    {{ $proyek->laporanAkhir && $proyek->laporanAkhir->nilai !== null ? number_format($proyek->laporanAkhir->nilai, 2) : '—' }}
+                </p>
+                @if (!$proyek->laporanAkhir || $proyek->laporanAkhir->nilai === null)
+                    <p class="text-xs text-role-panitia mt-1">Laporan akhir belum dinilai</p>
+                @endif
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-border p-6">
-            <p class="font-display text-base font-semibold mb-4">Input / Ubah Nilai</p>
+            <p class="font-display text-base font-semibold mb-1">Input Kinerja Mahasiswa</p>
+            <p class="text-xs text-ink/40 mb-4">Bobot total 70% dari nilai akhir.</p>
 
             @if ($errors->any())
                 <div class="mb-4 px-4 py-3 rounded-2xl bg-role-panitia-soft text-role-panitia text-sm">
@@ -38,47 +62,30 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('dosen.penilaian-akhir.update', $proyek) }}" class="space-y-5">
+            <form method="POST" action="{{ route('dosen.penilaian-akhir.update', $proyek) }}" class="space-y-4">
                 @csrf
 
-                <div>
-                    <p class="text-xs font-semibold text-ink/50 uppercase tracking-wide mb-2">Laporan Rencana Kegiatan (bobot 15%)</p>
-                    <input type="number" name="nilai_lrk" value="{{ old('nilai_lrk', $proyek->penilaianLrk->nilai ?? '') }}" min="0" max="100" step="0.01"
-                           placeholder="Nilai LRK (0-100)"
-                           class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                </div>
-
-                <div>
-                    <p class="text-xs font-semibold text-ink/50 uppercase tracking-wide mb-2">Kinerja Mahasiswa (bobot 70%)</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs text-ink/60 mb-1">Pelaksanaan (30%)</label>
-                            <input type="number" name="pelaksanaan" value="{{ old('pelaksanaan', $proyek->penilaianKinerja->pelaksanaan ?? '') }}" min="0" max="100" step="0.01"
-                                   class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-ink/60 mb-1">Disiplin (15%)</label>
-                            <input type="number" name="disiplin" value="{{ old('disiplin', $proyek->penilaianKinerja->disiplin ?? '') }}" min="0" max="100" step="0.01"
-                                   class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-ink/60 mb-1">Kerjasama (15%)</label>
-                            <input type="number" name="kerjasama" value="{{ old('kerjasama', $proyek->penilaianKinerja->kerjasama ?? '') }}" min="0" max="100" step="0.01"
-                                   class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-ink/60 mb-1">Penghayatan (10%)</label>
-                            <input type="number" name="penghayatan" value="{{ old('penghayatan', $proyek->penilaianKinerja->penghayatan ?? '') }}" min="0" max="100" step="0.01"
-                                   class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                        </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-ink/60 mb-1">Pelaksanaan (30%)</label>
+                        <input type="number" name="pelaksanaan" value="{{ old('pelaksanaan', $proyek->penilaianKinerja->pelaksanaan ?? '') }}" min="0" max="100" step="0.01"
+                               class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
                     </div>
-                </div>
-
-                <div>
-                    <p class="text-xs font-semibold text-ink/50 uppercase tracking-wide mb-2">Laporan Pelaksanaan Kegiatan (bobot 15%)</p>
-                    <input type="number" name="nilai_lpk" value="{{ old('nilai_lpk', $proyek->penilaianLpk->nilai ?? '') }}" min="0" max="100" step="0.01"
-                           placeholder="Nilai LPK (0-100)"
-                           class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
+                    <div>
+                        <label class="block text-xs text-ink/60 mb-1">Disiplin (15%)</label>
+                        <input type="number" name="disiplin" value="{{ old('disiplin', $proyek->penilaianKinerja->disiplin ?? '') }}" min="0" max="100" step="0.01"
+                               class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-ink/60 mb-1">Kerjasama (15%)</label>
+                        <input type="number" name="kerjasama" value="{{ old('kerjasama', $proyek->penilaianKinerja->kerjasama ?? '') }}" min="0" max="100" step="0.01"
+                               class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-ink/60 mb-1">Penghayatan (10%)</label>
+                        <input type="number" name="penghayatan" value="{{ old('penghayatan', $proyek->penilaianKinerja->penghayatan ?? '') }}" min="0" max="100" step="0.01"
+                               class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
+                    </div>
                 </div>
 
                 <button type="submit"

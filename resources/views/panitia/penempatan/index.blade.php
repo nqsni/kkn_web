@@ -27,7 +27,7 @@
                     <div class="flex items-center justify-between gap-4">
                         <div class="min-w-0">
                             <p class="font-display text-base font-semibold">{{ $proyek->judul }}</p>
-                            <p class="text-sm text-ink/60 mt-1">{{ $proyek->lokasi }} · Pengaju: {{ $proyek->mahasiswa->name }}</p>
+                            <p class="text-sm text-ink/60 mt-1">{{ $proyek->lokasi }} · Pengaju: {{ $proyek->mahasiswa->name ?? '-' }}</p>
                         </div>
                         <form method="POST" action="{{ route('panitia.penempatan.assign', $proyek) }}" class="flex items-center gap-2 shrink-0">
                             @csrf
@@ -60,7 +60,7 @@
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-border px-5 py-3">
                     <div>
                         <p class="text-sm font-medium">{{ $proyek->judul }}</p>
-                        <p class="text-xs text-ink/40">Dosen: {{ $proyek->dosen->name }}</p>
+                        <p class="text-xs text-ink/40">Dosen: {{ $proyek->dosen->name ?? '-' }}</p>
                     </div>
                     <span class="text-xs font-semibold px-3 py-1 rounded-full bg-role-admin-soft text-role-admin">Ditempatkan</span>
                 </div>

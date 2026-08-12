@@ -11,7 +11,13 @@
         <div class="col-span-2 space-y-5">
             <div class="bg-white rounded-2xl border border-border p-6">
                 <p class="font-display text-xl font-semibold mb-1">{{ $proyek->judul }}</p>
-                <p class="text-sm text-ink/60 mb-4">Diajukan oleh {{ $proyek->mahasiswa->name }} ({{ $proyek->mahasiswa->email }})</p>
+                <p class="text-sm text-ink/60 mb-4">
+                    @if ($proyek->pengaju_type === 'dosen')
+                        Diajukan oleh Dosen: {{ $proyek->dosen->name ?? '-' }} ({{ $proyek->dosen->email ?? '-' }})
+                    @else
+                        Diajukan oleh Mahasiswa: {{ $proyek->mahasiswa->name ?? '-' }} ({{ $proyek->mahasiswa->email ?? '-' }})
+                    @endif
+                </p>
 
                 <p class="text-sm text-ink/70 leading-relaxed">{{ $proyek->deskripsi }}</p>
 
@@ -41,33 +47,40 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('panitia.validasi-proyek.update', $proyek) }}" x-data="{ keputusan: '' }">
+                    {{-- Form Loloskan --}}
+                    <form method="POST" action="{{ route('panitia.validasi-proyek.update', $proyek) }}" class="mb-4 p-4 rounded-2xl border-2 border-accent-kiwi/30 bg-accent-kiwi/5">
                         @csrf
+                        <input type="hidden" name="keputusan" value="lolos">
+                        <p class="text-sm font-semibold text-accent-kiwi mb-3">✓ Loloskan Proyek</p>
 
-                        <div class="flex gap-3 mb-4">
-                            <button type="button" onclick="document.getElementById('keputusan_lolos').click()"
-                                    class="flex-1 px-4 py-3 rounded-2xl border-2 border-accent-kiwi text-accent-kiwi text-sm font-semibold hover:bg-accent-kiwi/10 transition">
-                                ✓ Loloskan
-                            </button>
-                            <button type="button" onclick="document.getElementById('keputusan_tolak').click()"
-                                    class="flex-1 px-4 py-3 rounded-2xl border-2 border-role-panitia text-role-panitia text-sm font-semibold hover:bg-role-panitia-soft transition">
-                                ✕ Tolak
-                            </button>
-                        </div>
+                        @if ($proyek->pengaju_type === 'mahasiswa' && !$proyek->dosen_id)
+                            <div class="mb-3">
+                                <label class="block text-xs text-ink/60 mb-1">Pilih Dosen Pembimbing</label>
+                                <select name="dosen_id" class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
+                                    <option value="">-- Pilih Dosen --</option>
+                                    @foreach ($dosenList as $dosen)
+                                        <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @elseif ($proyek->pengaju_type === 'dosen')
+                            <p class="text-xs text-ink/50 mb-3">Dosen pembimbing: <strong>{{ $proyek->dosen->name ?? '-' }}</strong> (pengaju proyek ini)</p>
+                        @endif
 
-                        <div class="hidden" id="form-tolak">
-                            <textarea name="catatan_validasi" rows="3" placeholder="Alasan penolakan (wajib diisi)"
-                                      class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm mb-3"></textarea>
-                        </div>
+                        <button type="submit" class="w-full px-4 py-2.5 rounded-2xl bg-accent-kiwi text-white text-sm font-semibold hover:bg-accent-kiwi/90 transition">
+                            Loloskan Proyek Ini
+                        </button>
+                    </form>
 
-                        <input type="hidden" name="keputusan" id="keputusan-input" value="">
-
-                        <button type="submit" id="keputusan_lolos" onclick="document.getElementById('keputusan-input').value='lolos'; document.getElementById('form-tolak').classList.add('hidden');" class="hidden"></button>
-                        <button type="submit" id="keputusan_tolak" onclick="event.preventDefault(); document.getElementById('keputusan-input').value='tidak_lolos'; document.getElementById('form-tolak').classList.remove('hidden');" class="hidden"></button>
-
-                        <button type="submit"
-                                class="w-full px-5 py-2.5 rounded-2xl bg-ink text-white text-sm font-medium hover:bg-ink/90 transition">
-                            Kirim Keputusan
+                    {{-- Form Tolak --}}
+                    <form method="POST" action="{{ route('panitia.validasi-proyek.update', $proyek) }}" class="p-4 rounded-2xl border-2 border-role-panitia/30 bg-role-panitia-soft">
+                        @csrf
+                        <input type="hidden" name="keputusan" value="tidak_lolos">
+                        <p class="text-sm font-semibold text-role-panitia mb-3">✕ Tolak Proyek</p>
+                        <textarea name="catatan_validasi" rows="3" placeholder="Alasan penolakan (wajib diisi)"
+                                  class="w-full rounded-2xl border-border focus:border-role-panitia focus:ring-role-panitia text-sm mb-3"></textarea>
+                        <button type="submit" class="w-full px-4 py-2.5 rounded-2xl border-2 border-role-panitia text-role-panitia text-sm font-semibold hover:bg-role-panitia/10 transition">
+                            Tolak Proyek Ini
                         </button>
                     </form>
                 </div>
@@ -84,12 +97,14 @@
         <div>
             <div class="bg-white rounded-2xl border border-border p-6">
                 <p class="text-sm font-medium mb-3">Tim Saat Ini</p>
-                @foreach ($proyek->timKkn as $tim)
+                @forelse ($proyek->timKkn as $tim)
                     <div class="flex items-center justify-between text-sm py-1.5">
                         <span>{{ $tim->mahasiswa->name }}</span>
                         <span class="text-xs text-ink/40">{{ $tim->peran === 'pengaju' ? 'Pengaju' : 'Anggota' }}</span>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-xs text-ink/40">Belum ada anggota.</p>
+                @endforelse
             </div>
         </div>
     </div>

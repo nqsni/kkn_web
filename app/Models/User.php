@@ -68,7 +68,7 @@ class User extends Authenticatable
     {
         return $this->timKkn()
             ->whereHas('proyek', function ($q) {
-                $q->whereIn('status', ['diajukan', 'lolos', 'penuh']);
+                $q->whereIn('status', ['diajukan', 'menunggu_rilis', 'tersedia', 'penuh']);
             })
             ->with('proyek')
             ->first()?->proyek;

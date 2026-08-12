@@ -53,7 +53,7 @@
                     </div>
                 @endif
 
-            @elseif (!in_array($proyek->status, ['lolos', 'penuh']))
+            @elseif (!in_array($proyek->status, ['tersedia', 'penuh']))
                 {{-- BELUM LOLOS VALIDASI --}}
                 <p class="text-sm text-ink/60 mt-4">Proyek kamu belum lolos validasi panitia. Proposal belum bisa diajukan.</p>
 

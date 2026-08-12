@@ -4,11 +4,19 @@ use App\Http\Controllers\Dosen\ValidasiProposalController;
 use App\Http\Controllers\Dosen\PenilaianLogbookController;
 use App\Http\Controllers\Dosen\PenilaianLaporanController;
 use App\Http\Controllers\Dosen\PenilaianAkhirController;
+use App\Http\Controllers\Dosen\ProyekController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', function () {
     return view('dosen.dashboard');
 })->name('dosen.dashboard');
+
+Route::prefix('proyek')->name('dosen.proyek.')->group(function () {
+    Route::get('/', [ProyekController::class, 'index'])->name('index');
+    Route::get('/create', [ProyekController::class, 'create'])->name('create');
+    Route::post('/', [ProyekController::class, 'store'])->name('store');
+    Route::get('/{proyek}', [ProyekController::class, 'show'])->name('show');
+});
 
 Route::prefix('validasi-proposal')->name('dosen.validasi-proposal.')->group(function () {
     Route::get('/', [ValidasiProposalController::class, 'index'])->name('index');

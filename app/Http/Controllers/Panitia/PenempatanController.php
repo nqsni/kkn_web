@@ -9,16 +9,15 @@ use Illuminate\Http\Request;
 
 class PenempatanController extends Controller
 {
-    // List proyek lolos/penuh yang belum ada dosen
     public function index()
     {
-        $proyekBelumAdaDosen = ProyekKkn::whereIn('status', ['lolos', 'penuh'])
+        $proyekBelumAdaDosen = ProyekKkn::whereIn('status', ['menunggu_rilis', 'tersedia', 'penuh'])
             ->whereNull('dosen_id')
             ->with('mahasiswa')
             ->latest()
             ->get();
 
-        $proyekSudahAdaDosen = ProyekKkn::whereIn('status', ['lolos', 'penuh'])
+        $proyekSudahAdaDosen = ProyekKkn::whereIn('status', ['menunggu_rilis', 'tersedia', 'penuh'])
             ->whereNotNull('dosen_id')
             ->with('mahasiswa', 'dosen')
             ->latest()
@@ -29,7 +28,6 @@ class PenempatanController extends Controller
         return view('panitia.penempatan.index', compact('proyekBelumAdaDosen', 'proyekSudahAdaDosen', 'dosenList'));
     }
 
-    // Assign dosen ke proyek
     public function assign(Request $request, ProyekKkn $proyek)
     {
         $validated = $request->validate([
@@ -42,7 +40,6 @@ class PenempatanController extends Controller
             ->with('success', 'Dosen pembimbing berhasil ditetapkan untuk proyek "' . $proyek->judul . '".');
     }
 
-    // Ubah dosen (opsional, kalau perlu ganti)
     public function reassign(Request $request, ProyekKkn $proyek)
     {
         $validated = $request->validate([

@@ -1,6 +1,7 @@
 <x-dashboard-layout title="Penilaian Akhir">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
+        <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
@@ -26,7 +27,7 @@
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-border p-5">
                     <div>
                         <p class="font-display text-base font-semibold">{{ $proyek->judul }}</p>
-                        <p class="text-sm text-ink/60 mt-1">{{ $proyek->mahasiswa->name }}</p>
+                        <p class="text-sm text-ink/60 mt-1">{{ $proyek->mahasiswa->name ?? 'Tim Sendiri (Diajukan Dosen)' }}</p>
                     </div>
                     <div class="flex items-center gap-3">
                         @if ($proyek->nilaiAkhir)

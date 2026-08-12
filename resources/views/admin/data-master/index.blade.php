@@ -1,6 +1,7 @@
 <x-dashboard-layout title="Data Master">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('admin.dashboard') }}">Dashboard</x-nav-item>
+        <x-nav-item href="{{ route('admin.periode.index') }}">Periode KKN</x-nav-item>
         <x-nav-item href="{{ route('admin.data-master.index') }}" :active="true">Data Master</x-nav-item>
         <x-nav-item href="{{ route('admin.rubrik-penilaian.index') }}">Rubrik Penilaian</x-nav-item>
         <x-nav-item href="{{ route('admin.users.index') }}">Manajemen User</x-nav-item>

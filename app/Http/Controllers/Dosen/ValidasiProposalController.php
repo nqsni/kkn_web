@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProposalKkn;
-use App\Models\ProyekKkn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,7 +34,6 @@ class ValidasiProposalController extends Controller
 
     public function show(ProposalKkn $proposal)
     {
-        // Pastikan proposal ini milik proyek bimbingan dosen yang login
         if ($proposal->proyek->dosen_id !== Auth::id()) {
             abort(403);
         }
@@ -53,6 +51,7 @@ class ValidasiProposalController extends Controller
 
         $validated = $request->validate([
             'keputusan' => 'required|in:acc,ditolak',
+            'nilai' => 'nullable|numeric|min:0|max:100|required_if:keputusan,acc',
             'catatan_dosen' => 'nullable|string|required_if:keputusan,ditolak',
         ]);
 
@@ -63,6 +62,7 @@ class ValidasiProposalController extends Controller
 
         $proposal->update([
             'status' => $validated['keputusan'],
+            'nilai' => $validated['nilai'] ?? null,
             'catatan_dosen' => $validated['catatan_dosen'] ?? null,
         ]);
 

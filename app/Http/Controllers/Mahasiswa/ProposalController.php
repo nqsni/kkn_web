@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProposalController extends Controller
 {
-    // Halaman utama proposal — otomatis tampilkan form atau status
     public function index()
     {
         $user = Auth::user();
@@ -29,7 +28,6 @@ class ProposalController extends Controller
         return view('mahasiswa.proposal.index', compact('proyek', 'isPengaju'));
     }
 
-    // Simpan proposal baru
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -45,7 +43,7 @@ class ProposalController extends Controller
             abort(403, 'Hanya pengaju proyek yang bisa mengajukan proposal.');
         }
 
-        if (!in_array($proyek->status, ['lolos', 'penuh'])) {
+        if (!in_array($proyek->status, ['tersedia', 'penuh'])) {
             return redirect()->route('mahasiswa.proposal.index')
                 ->with('error', 'Proyek belum lolos validasi, belum bisa mengajukan proposal.');
         }
@@ -56,7 +54,7 @@ class ProposalController extends Controller
         }
 
         $request->validate([
-            'file_proposal' => 'required|file|mimes:pdf|max:5120', // maks 5MB
+            'file_proposal' => 'required|file|mimes:pdf|max:5120',
         ]);
 
         $path = $request->file('file_proposal')->store('proposal', 'public');

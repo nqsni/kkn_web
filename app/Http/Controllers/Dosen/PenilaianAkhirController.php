@@ -19,8 +19,8 @@ class PenilaianAkhirController extends Controller
         $dosenId = Auth::id();
 
         $proyekList = ProyekKkn::where('dosen_id', $dosenId)
-            ->whereIn('status', ['lolos', 'penuh'])
-            ->with('mahasiswa', 'nilaiAkhir')
+            ->whereIn('status', ['tersedia', 'penuh'])
+            ->with('mahasiswa', 'nilaiAkhir', 'proposal', 'laporanAkhir')
             ->get();
 
         return view('dosen.penilaian-akhir.index', compact('proyekList'));
@@ -32,7 +32,7 @@ class PenilaianAkhirController extends Controller
             abort(403);
         }
 
-        $proyek->load('penilaianLrk', 'penilaianKinerja', 'penilaianLpk', 'nilaiAkhir', 'mahasiswa');
+        $proyek->load('penilaianKinerja', 'nilaiAkhir', 'mahasiswa', 'proposal', 'laporanAkhir');
 
         return view('dosen.penilaian-akhir.edit', compact('proyek'));
     }
@@ -44,15 +44,17 @@ class PenilaianAkhirController extends Controller
         }
 
         $validated = $request->validate([
-            'nilai_lrk' => 'required|numeric|min:0|max:100',
             'pelaksanaan' => 'required|numeric|min:0|max:100',
             'disiplin' => 'required|numeric|min:0|max:100',
             'kerjasama' => 'required|numeric|min:0|max:100',
             'penghayatan' => 'required|numeric|min:0|max:100',
-            'nilai_lpk' => 'required|numeric|min:0|max:100',
         ]);
 
-        $this->penilaianService->prosesPenilaianAkhir($proyek, $validated);
+        try {
+            $this->penilaianService->prosesPenilaianAkhir($proyek, $validated);
+        } catch (\Exception $e) {
+            return back()->withErrors(['nilai' => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('dosen.penilaian-akhir.index')
             ->with('success', 'Nilai akhir untuk "' . $proyek->judul . '" berhasil disimpan.');
