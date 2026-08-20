@@ -131,4 +131,26 @@ class ProyekController extends Controller
 
         return view('mahasiswa.proyek.show', compact('proyek'));
     }
+
+    public function destroy(ProyekKkn $proyek)
+    {
+        $user = Auth::user();
+
+        $tim = $proyek->timKkn()->where('mahasiswa_id', $user->id)->first();
+
+        if (!$tim || $tim->peran !== 'pengaju') {
+            abort(403, 'Hanya pengaju yang bisa membatalkan proyek ini.');
+        }
+
+        if ($proyek->status !== 'diajukan') {
+            return redirect()->route('mahasiswa.proyek.index')
+                ->with('error', 'Proyek yang sudah divalidasi panitia tidak bisa dibatalkan.');
+        }
+
+        $judul = $proyek->judul;
+        $proyek->delete(); // tim_kkn ikut terhapus otomatis (cascade)
+
+        return redirect()->route('mahasiswa.proyek.index')
+            ->with('success', 'Proyek "' . $judul . '" berhasil dibatalkan. Kamu bisa mengajukan proyek baru sekarang.');
+    }
 }

@@ -3,7 +3,7 @@
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
         <x-nav-item href="{{ route('dosen.proyek.index') }}" :active="true">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
-        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Tinjau Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-akhir.index') }}">Penilaian Akhir</x-nav-item>
     </x-slot:sidebar>
@@ -40,6 +40,20 @@
                     </div>
                 @endif
             </div>
+            @if ($proyek->status === 'diajukan')
+            <div class="bg-white rounded-2xl border border-role-panitia/30 p-6">
+                <p class="text-sm font-semibold text-role-panitia mb-2">Batalkan Pengajuan</p>
+                <p class="text-xs text-ink/50 mb-3">Proyek ini masih menunggu validasi panitia. Kamu bisa membatalkannya untuk mengajukan proyek lain.</p>
+                <form method="POST" action="{{ route('dosen.proyek.destroy', $proyek) }}"
+                    onsubmit="return confirm('Yakin mau batalkan proyek ini? Semua anggota yang sudah diundang juga akan terlepas.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-4 py-2 rounded-2xl border-2 border-role-panitia text-role-panitia text-sm font-semibold hover:bg-role-panitia-soft transition">
+                        Batalkan Proyek Ini
+                    </button>
+                </form>
+            </div>
+        @endif
         </div>
 
         <div>

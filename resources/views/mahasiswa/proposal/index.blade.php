@@ -57,9 +57,9 @@
                 {{-- BELUM LOLOS VALIDASI --}}
                 <p class="text-sm text-ink/60 mt-4">Proyek kamu belum lolos validasi panitia. Proposal belum bisa diajukan.</p>
 
-            @elseif (!$isPengaju)
-                {{-- BUKAN PENGAJU --}}
-                <p class="text-sm text-ink/60 mt-4">Menunggu pengaju proyek mengajukan proposal.</p>
+            @elseif (!$isMember)
+                {{-- BUKAN ANGGOTA TIM --}}
+                <p class="text-sm text-ink/60 mt-4">Kamu bukan anggota tim proyek ini.</p>
 
             @else
                 {{-- FORM UPLOAD --}}

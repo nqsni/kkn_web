@@ -51,6 +51,25 @@
                     </div>
                 @endif
             </div>
+            @if ($proyek->status === 'diajukan')
+            @php
+                $tim = $proyek->timKkn->firstWhere('mahasiswa_id', auth()->id());
+            @endphp
+            @if ($tim && $tim->peran === 'pengaju')
+                <div class="bg-white rounded-2xl border border-role-panitia/30 p-6">
+                    <p class="text-sm font-semibold text-role-panitia mb-2">Batalkan Pengajuan</p>
+                    <p class="text-xs text-ink/50 mb-3">Proyek ini masih menunggu validasi panitia. Kamu bisa membatalkannya untuk mengajukan proyek lain.</p>
+                    <form method="POST" action="{{ route('mahasiswa.proyek.destroy', $proyek) }}"
+                        onsubmit="return confirm('Yakin mau batalkan proyek ini? Semua anggota yang sudah diundang juga akan terlepas.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-4 py-2 rounded-2xl border-2 border-role-panitia text-role-panitia text-sm font-semibold hover:bg-role-panitia-soft transition">
+                            Batalkan Proyek Ini
+                        </button>
+                    </form>
+                </div>
+            @endif
+        @endif
         </div>
 
         <div class="space-y-5">

@@ -22,10 +22,9 @@ class ProposalController extends Controller
 
         $proyek->load('proposal');
 
-        $tim = $proyek->timKkn()->where('mahasiswa_id', $user->id)->first();
-        $isPengaju = $tim && $tim->peran === 'pengaju';
+        $isMember = $proyek->timKkn()->where('mahasiswa_id', $user->id)->exists();
 
-        return view('mahasiswa.proposal.index', compact('proyek', 'isPengaju'));
+        return view('mahasiswa.proposal.index', compact('proyek', 'isMember'));
     }
 
     public function store(Request $request)
@@ -38,9 +37,9 @@ class ProposalController extends Controller
                 ->with('error', 'Kamu belum memiliki proyek KKN aktif.');
         }
 
-        $tim = $proyek->timKkn()->where('mahasiswa_id', $user->id)->first();
-        if (!$tim || $tim->peran !== 'pengaju') {
-            abort(403, 'Hanya pengaju proyek yang bisa mengajukan proposal.');
+        $isMember = $proyek->timKkn()->where('mahasiswa_id', $user->id)->exists();
+        if (!$isMember) {
+            abort(403, 'Kamu bukan anggota tim proyek ini.');
         }
 
         if (!in_array($proyek->status, ['tersedia', 'penuh'])) {

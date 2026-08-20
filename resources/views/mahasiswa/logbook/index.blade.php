@@ -10,29 +10,26 @@
     </x-slot:sidebar>
 
     @if (session('success'))
-        <div class="mb-4 px-4 py-3 rounded-lg bg-role-dosen-soft text-role-dosen text-sm">
-            {{ session('success') }}
-        </div>
+        <div class="mb-4 px-4 py-3 rounded-2xl bg-role-dosen-soft text-role-dosen text-sm">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="mb-4 px-4 py-3 rounded-2xl bg-role-panitia-soft text-role-panitia text-sm">{{ session('error') }}</div>
     @endif
 
-    @if (session('error'))
-        <div class="mb-4 px-4 py-3 rounded-lg bg-role-panitia-soft text-role-panitia text-sm">
-            {{ session('error') }}
-        </div>
-    @endif
+    <p class="text-sm text-ink/60 mb-6">Logbook ini milikmu sendiri — setiap anggota tim upload dan dinilai secara terpisah.</p>
 
     <div class="grid grid-cols-3 gap-5">
 
         {{-- FORM UPLOAD --}}
         <div class="col-span-1">
-            <div class="bg-white rounded-xl border border-border p-6 sticky top-6">
+            <div class="bg-white rounded-2xl border border-border p-6 sticky top-6">
                 <p class="font-display text-base font-semibold mb-1">Upload Logbook</p>
 
                 @if (!$bisaUpload)
-                    <p class="text-sm text-ink/60 mt-3">Proposal kamu belum di-ACC dosen. Upload logbook belum tersedia.</p>
+                    <p class="text-sm text-ink/60 mt-3">Proposal proyek kamu belum di-ACC dosen. Upload logbook belum tersedia.</p>
                 @else
                     @if ($errors->any())
-                        <div class="mb-4 mt-3 px-4 py-3 rounded-lg bg-role-panitia-soft text-role-panitia text-sm">
+                        <div class="mb-4 mt-3 px-4 py-3 rounded-2xl bg-role-panitia-soft text-role-panitia text-sm">
                             <ul class="list-disc list-inside space-y-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -46,21 +43,21 @@
                         <div>
                             <label class="block text-sm font-medium mb-1.5">Minggu Ke-</label>
                             <input type="number" name="minggu_ke" value="{{ old('minggu_ke', $mingguSelanjutnya) }}" min="1"
-                                   class="w-full rounded-lg border-border focus:border-ink focus:ring-ink text-sm">
+                                   class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1.5">File Logbook (PDF)</label>
                             <input type="file" name="file_logbook" accept=".pdf"
-                                   class="w-full text-sm rounded-lg border-border focus:border-ink focus:ring-ink">
+                                   class="w-full text-sm rounded-2xl border-border focus:border-brand focus:ring-brand">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1.5">Deskripsi Kegiatan</label>
                             <textarea name="deskripsi_kegiatan" rows="4"
-                                      class="w-full rounded-lg border-border focus:border-ink focus:ring-ink text-sm"
+                                      class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm"
                                       placeholder="Ringkas kegiatan minggu ini">{{ old('deskripsi_kegiatan') }}</textarea>
                         </div>
                         <button type="submit"
-                                class="w-full px-4 py-2.5 rounded-lg bg-ink text-white text-sm font-medium hover:bg-ink/90 transition">
+                                class="w-full px-4 py-2.5 rounded-2xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition">
                             Upload Logbook
                         </button>
                     </form>
@@ -68,31 +65,31 @@
             </div>
         </div>
 
-        {{-- RIWAYAT LOGBOOK --}}
+        {{-- RIWAYAT LOGBOOK SAYA --}}
         <div class="col-span-2">
-            <p class="text-sm text-ink/60 mb-4">Riwayat logbook yang sudah diupload.</p>
+            <p class="text-sm text-ink/60 mb-4">Riwayat logbook yang sudah kamu upload.</p>
 
-            @if ($proyek->logbook->isEmpty())
-                <div class="bg-white rounded-xl border border-border p-10 text-center">
-                    <p class="text-sm text-ink/60">Belum ada logbook yang diupload.</p>
+            @if ($logbookSaya->isEmpty())
+                <div class="bg-white rounded-2xl border border-border p-10 text-center">
+                    <p class="text-sm text-ink/60">Kamu belum upload logbook apapun.</p>
                 </div>
             @else
                 <div class="space-y-3">
-                    @foreach ($proyek->logbook->sortByDesc('minggu_ke') as $log)
-                        <div class="bg-white rounded-xl border border-border p-5">
+                    @foreach ($logbookSaya as $log)
+                        <div class="bg-white rounded-2xl border border-border p-5">
                             <div class="flex items-start justify-between gap-4">
                                 <div>
                                     <p class="font-medium text-sm">Minggu ke-{{ $log->minggu_ke }}</p>
                                     <p class="text-sm text-ink/60 mt-1">{{ $log->deskripsi_kegiatan }}</p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    @if ($log->nilai !== null)
-                                        <span class="text-xs font-medium px-3 py-1 rounded-full bg-role-dosen-soft text-role-dosen">
-                                            Nilai: {{ $log->nilai }}
+                                    @if ($log->catatan_dosen)
+                                        <span class="text-xs font-medium px-3 py-1 rounded-full bg-accent-kiwi/15 text-accent-kiwi">
+                                            Ada Catatan Dosen
                                         </span>
                                     @else
-                                        <span class="text-xs font-medium px-3 py-1 rounded-full bg-role-mahasiswa-soft text-role-mahasiswa">
-                                            Belum Dinilai
+                                        <span class="text-xs font-medium px-3 py-1 rounded-full bg-paper text-ink/50">
+                                            Belum Ditinjau
                                         </span>
                                     @endif
                                 </div>

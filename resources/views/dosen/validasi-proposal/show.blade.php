@@ -3,7 +3,7 @@
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
         <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}" :active="true">Validasi Proposal</x-nav-item>
-        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Tinjau Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-akhir.index') }}">Penilaian Akhir</x-nav-item>
     </x-slot:sidebar>
@@ -14,7 +14,13 @@
         <div class="col-span-2 space-y-5">
             <div class="bg-white rounded-2xl border border-border p-6">
                 <p class="font-display text-xl font-semibold mb-1">{{ $proposal->proyek->judul }}</p>
-                <p class="text-sm text-ink/60 mb-4">{{ $proposal->proyek->mahasiswa->name ?? '-' }} ({{ $proposal->proyek->mahasiswa->email ?? '-' }})</p>
+                <p class="text-sm text-ink/60 mb-4">
+                    @if ($proposal->proyek->pengaju_type === 'dosen')
+                        Proyek diajukan sendiri oleh kamu
+                    @else
+                        {{ $proposal->proyek->mahasiswa->name ?? '-' }} ({{ $proposal->proyek->mahasiswa->email ?? '-' }})
+                    @endif
+                </p>
                 <p class="text-sm text-ink/70">{{ $proposal->proyek->deskripsi }}</p>
 
                 <a href="{{ Storage::url($proposal->file_proposal) }}" target="_blank"

@@ -19,12 +19,17 @@ class LogbookController extends Controller
                 ->with('error', 'Kamu belum memiliki proyek KKN aktif.');
         }
 
-        $proyek->load('proposal', 'logbook');
+        $proyek->load('proposal');
+
+        $logbookSaya = LogbookMingguan::where('proyek_kkn_id', $proyek->id)
+            ->where('mahasiswa_id', $user->id)
+            ->orderByDesc('minggu_ke')
+            ->get();
 
         $bisaUpload = $proyek->proposal && $proyek->proposal->status === 'acc';
-        $mingguSelanjutnya = $proyek->logbook->count() + 1;
+        $mingguSelanjutnya = $logbookSaya->count() + 1;
 
-        return view('mahasiswa.logbook.index', compact('proyek', 'bisaUpload', 'mingguSelanjutnya'));
+        return view('mahasiswa.logbook.index', compact('proyek', 'logbookSaya', 'bisaUpload', 'mingguSelanjutnya'));
     }
 
     public function store(Request $request)
@@ -35,6 +40,11 @@ class LogbookController extends Controller
         if (!$proyek) {
             return redirect()->route('mahasiswa.proyek.index')
                 ->with('error', 'Kamu belum memiliki proyek KKN aktif.');
+        }
+
+        $isMember = $proyek->timKkn()->where('mahasiswa_id', $user->id)->exists();
+        if (!$isMember) {
+            abort(403);
         }
 
         if (!$proyek->proposal || $proyek->proposal->status !== 'acc') {
@@ -48,16 +58,21 @@ class LogbookController extends Controller
             'deskripsi_kegiatan' => 'required|string',
         ]);
 
-        $sudahAda = $proyek->logbook()->where('minggu_ke', $request->minggu_ke)->exists();
+        $sudahAda = LogbookMingguan::where('proyek_kkn_id', $proyek->id)
+            ->where('mahasiswa_id', $user->id)
+            ->where('minggu_ke', $request->minggu_ke)
+            ->exists();
+
         if ($sudahAda) {
             return redirect()->route('mahasiswa.logbook.index')
-                ->with('error', 'Logbook untuk minggu ke-' . $request->minggu_ke . ' sudah pernah diupload.');
+                ->with('error', 'Kamu sudah upload logbook untuk minggu ke-' . $request->minggu_ke . '.');
         }
 
         $path = $request->file('file_logbook')->store('logbook', 'public');
 
         LogbookMingguan::create([
             'proyek_kkn_id' => $proyek->id,
+            'mahasiswa_id' => $user->id,
             'minggu_ke' => $request->minggu_ke,
             'file_logbook' => $path,
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,

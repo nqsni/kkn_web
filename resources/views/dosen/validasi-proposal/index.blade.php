@@ -3,7 +3,7 @@
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
         <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}" :active="true">Validasi Proposal</x-nav-item>
-        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Tinjau Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-akhir.index') }}">Penilaian Akhir</x-nav-item>
     </x-slot:sidebar>
@@ -32,7 +32,14 @@
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <p class="font-display text-base font-semibold">{{ $proposal->proyek->judul }}</p>
-                            <p class="text-sm text-ink/60 mt-1">{{ $proposal->proyek->mahasiswa->name }} · {{ $proposal->proyek->lokasi }}</p>
+                            <p class="text-sm text-ink/60 mt-1">
+                                @if ($proposal->proyek->pengaju_type === 'dosen')
+                                    Diajukan sendiri
+                                @else
+                                    {{ $proposal->proyek->mahasiswa->name ?? '-' }}
+                                @endif
+                                · {{ $proposal->proyek->lokasi }}
+                            </p>
                         </div>
                         <span class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-accent-yellow/20 text-role-mahasiswa">
                             Menunggu Review
@@ -57,9 +64,18 @@
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-border px-5 py-3">
                     <div>
                         <p class="text-sm font-medium">{{ $proposal->proyek->judul }}</p>
-                        <p class="text-xs text-ink/40">{{ $proposal->proyek->mahasiswa->name }}</p>
+                        <p class="text-xs text-ink/40">
+                            {{ $proposal->proyek->pengaju_type === 'dosen' ? 'Diajukan sendiri' : ($proposal->proyek->mahasiswa->name ?? '-') }}
+                        </p>
                     </div>
+                    <div class="flex items-center gap-2">
+                    @if ($proposal->status === 'acc' && $proposal->nilai !== null)
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-accent-kiwi/15 text-accent-kiwi">
+                            Nilai: {{ $proposal->nilai }}
+                        </span>
+                    @endif
                     <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                </div>
                 </div>
             @endforeach
         </div>

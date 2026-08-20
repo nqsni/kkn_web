@@ -3,7 +3,7 @@
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
         <x-nav-item href="{{ route('dosen.proyek.index') }}" :active="true">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
-        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Penilaian Logbook</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}">Tinjau Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-akhir.index') }}">Penilaian Akhir</x-nav-item>
     </x-slot:sidebar>
@@ -16,7 +16,10 @@
     @endif
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-ink/60">Proyek KKN yang kamu ajukan sendiri sebagai dosen pembimbing.</p>
+        <div>
+            <p class="font-display text-xl font-semibold">Proyek KKN Saya</p>
+            <p class="text-sm text-ink/60 mt-1">Semua proyek yang kamu bimbing, baik yang kamu ajukan sendiri maupun ditugaskan panitia.</p>
+        </div>
         <a href="{{ route('dosen.proyek.create') }}"
            class="px-4 py-2 rounded-2xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition">
             + Ajukan Proyek Baru
@@ -25,7 +28,7 @@
 
     @if ($proyekList->isEmpty())
         <div class="bg-white rounded-2xl border border-border p-10 text-center">
-            <p class="text-sm text-ink/60">Kamu belum mengajukan proyek KKN apapun.</p>
+            <p class="text-sm text-ink/60">Belum ada proyek KKN yang kamu bimbing.</p>
         </div>
     @else
         <div class="space-y-3">
@@ -40,19 +43,28 @@
                         default => ['label' => $proyek->status, 'class' => 'bg-paper text-ink/60'],
                     };
                 @endphp
-                <a href="{{ route('dosen.proyek.show', $proyek) }}"
-                   class="block bg-white rounded-2xl border border-border p-5 hover:border-brand/40 transition">
+                <div class="bg-white rounded-2xl border border-border p-5">
                     <div class="flex items-start justify-between gap-4">
-                        <div class="min-w-0">
-                            <p class="font-display text-base font-semibold truncate">{{ $proyek->judul }}</p>
-                            <p class="text-sm text-ink/60 mt-1">{{ $proyek->lokasi }}</p>
-                            <p class="text-xs text-ink/40 mt-2">Tim {{ $proyek->jumlah_anggota }}/{{ $proyek->kuota_tim }}</p>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="font-display text-base font-semibold truncate">{{ $proyek->judul }}</p>
+                                <span class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full {{ $proyek->pengaju_type === 'dosen' ? 'bg-role-dosen-soft text-role-dosen' : 'bg-role-admin-soft text-role-admin' }}">
+                                    {{ $proyek->pengaju_type === 'dosen' ? 'Diajukan Sendiri' : 'Ditugaskan Panitia' }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-ink/60">
+                                {{ $proyek->lokasi }}
+                                @if ($proyek->pengaju_type === 'mahasiswa')
+                                    · Pengaju: {{ $proyek->mahasiswa->name ?? '-' }}
+                                @endif
+                            </p>
+                            <p class="text-xs text-ink/40 mt-1">Tim {{ $proyek->jumlah_anggota }}/{{ $proyek->kuota_tim }}</p>
                         </div>
                         <span class="shrink-0 text-xs font-medium px-3 py-1 rounded-full {{ $statusBadge['class'] }}">
                             {{ $statusBadge['label'] }}
                         </span>
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
     @endif

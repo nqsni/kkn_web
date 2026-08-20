@@ -16,6 +16,7 @@ Route::prefix('proyek')->name('dosen.proyek.')->group(function () {
     Route::get('/create', [ProyekController::class, 'create'])->name('create');
     Route::post('/', [ProyekController::class, 'store'])->name('store');
     Route::get('/{proyek}', [ProyekController::class, 'show'])->name('show');
+    Route::delete('/{proyek}', [ProyekController::class, 'destroy'])->name('destroy');
 });
 
 Route::prefix('validasi-proposal')->name('dosen.validasi-proposal.')->group(function () {

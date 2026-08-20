@@ -1,11 +1,11 @@
-<x-dashboard-layout title="Nilai Logbook">
+<x-dashboard-layout title="Tinjau Logbook">
     <x-slot:sidebar>
         <x-nav-item href="{{ route('dosen.dashboard') }}">Dashboard</x-nav-item>
         <x-nav-item href="{{ route('dosen.proyek.index') }}">Proyek KKN Saya</x-nav-item>
         <x-nav-item href="{{ route('dosen.validasi-proposal.index') }}">Validasi Proposal</x-nav-item>
-        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}" :active="true">Penilaian Logbook</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-logbook.index') }}" :active="true">Tinjau Logbook</x-nav-item>
         <x-nav-item href="{{ route('dosen.penilaian-laporan.index') }}">Penilaian Laporan Akhir</x-nav-item>
-        <x-nav-item href="#">Penilaian Akhir</x-nav-item>
+        <x-nav-item href="{{ route('dosen.penilaian-akhir.index') }}">Penilaian Akhir</x-nav-item>
     </x-slot:sidebar>
 
     <a href="{{ route('dosen.penilaian-logbook.index') }}" class="text-sm text-ink/50 hover:text-ink mb-4 inline-block">← Kembali</a>
@@ -14,7 +14,7 @@
         <div class="col-span-2">
             <div class="bg-white rounded-2xl border border-border p-6">
                 <p class="font-display text-lg font-semibold mb-1">Minggu ke-{{ $logbook->minggu_ke }}</p>
-                <p class="text-sm text-ink/60 mb-4">{{ $logbook->proyek->mahasiswa->name }} — {{ $logbook->proyek->judul }}</p>
+                <p class="text-sm text-ink/60 mb-4">{{ $logbook->mahasiswa->name ?? '-' }} — {{ $logbook->proyek->judul }}</p>
 
                 <p class="text-xs text-ink/40 mb-1">Deskripsi Kegiatan</p>
                 <p class="text-sm text-ink/70 mb-4">{{ $logbook->deskripsi_kegiatan }}</p>
@@ -28,7 +28,7 @@
 
         <div>
             <div class="bg-white rounded-2xl border border-border p-6">
-                <p class="text-sm font-medium mb-4">Beri Nilai</p>
+                <p class="text-sm font-medium mb-4">Catatan / Feedback</p>
 
                 @if ($errors->any())
                     <div class="mb-4 px-4 py-3 rounded-2xl bg-role-panitia-soft text-role-panitia text-sm">
@@ -40,19 +40,12 @@
 
                 <form method="POST" action="{{ route('dosen.penilaian-logbook.update', $logbook) }}" class="space-y-4">
                     @csrf
-                    <div>
-                        <label class="block text-sm font-medium mb-1.5">Nilai (0-100)</label>
-                        <input type="number" name="nilai" value="{{ old('nilai', $logbook->nilai) }}" min="0" max="100" step="0.01"
-                               class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1.5">Catatan (opsional)</label>
-                        <textarea name="catatan_dosen" rows="3"
-                                  class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">{{ old('catatan_dosen', $logbook->catatan_dosen) }}</textarea>
-                    </div>
+                    <textarea name="catatan_dosen" rows="6"
+                              placeholder="Beri catatan atau feedback untuk logbook minggu ini (opsional)"
+                              class="w-full rounded-2xl border-border focus:border-brand focus:ring-brand text-sm">{{ old('catatan_dosen', $logbook->catatan_dosen) }}</textarea>
                     <button type="submit"
                             class="w-full px-4 py-2.5 rounded-2xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition">
-                        Simpan Nilai
+                        Simpan Catatan
                     </button>
                 </form>
             </div>

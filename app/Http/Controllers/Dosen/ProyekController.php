@@ -12,13 +12,12 @@ use Illuminate\Support\Facades\DB;
 class ProyekController extends Controller
 {
     // List proyek yang diajukan dosen ini sendiri
-    public function index()
+   public function index()
     {
         $dosenId = Auth::id();
 
-        $proyekList = ProyekKkn::where('pengaju_type', 'dosen')
-            ->where('dosen_id', $dosenId)
-            ->with('timKkn.mahasiswa')
+        $proyekList = ProyekKkn::where('dosen_id', $dosenId)
+            ->with('mahasiswa', 'timKkn.mahasiswa')
             ->latest()
             ->get();
 
@@ -112,5 +111,23 @@ class ProyekController extends Controller
         $proyek->load('timKkn.mahasiswa');
 
         return view('dosen.proyek.show', compact('proyek'));
+    }
+
+    public function destroy(ProyekKkn $proyek)
+    {
+        if ($proyek->dosen_id !== Auth::id() || $proyek->pengaju_type !== 'dosen') {
+            abort(403);
+        }
+
+        if ($proyek->status !== 'diajukan') {
+            return redirect()->route('dosen.proyek.index')
+                ->with('error', 'Proyek yang sudah divalidasi panitia tidak bisa dibatalkan.');
+        }
+
+        $judul = $proyek->judul;
+        $proyek->delete(); // tim_kkn ikut terhapus otomatis (cascade)
+
+        return redirect()->route('dosen.proyek.index')
+            ->with('success', 'Proyek "' . $judul . '" berhasil dibatalkan. Kamu bisa mengajukan proyek baru sekarang.');
     }
 }
